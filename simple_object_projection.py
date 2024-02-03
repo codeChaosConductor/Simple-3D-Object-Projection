@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import pygame
+import json
 
 # Basic perspective projection of an object.
 # Control the position of the cube with W,S (up,down), A,D (left, right) and Y,X (forward, backward).
@@ -11,41 +12,35 @@ fov = 70
 far = 10
 near = 0.1
 speed = 0.01
+
+# Set the filename of the object
+filename = "triangle_mesh.json"
+
+# Specify what should be drawn
 draw_vertices = True
 draw_edges = True
 draw_faces = True
-
-# The following list 'points' contains arrays representing the coordinates of each vertex.
-# Each array is a 4x1 column vector, with the first three elements representing (x, y, z) coordinates,
-# and the last element being 1 for homogeneous coordinates.
-# You can modify these coordinates or add new points as needed.
-points = [np.array([[0], [0], [0], [1]], dtype=np.double),
-          np.array([[0], [0], [1], [1]], dtype=np.double),
-          np.array([[0], [1], [0], [1]], dtype=np.double),
-          np.array([[0], [1], [1], [1]], dtype=np.double),
-          np.array([[1], [0], [0], [1]], dtype=np.double),
-          np.array([[1], [0], [1], [1]], dtype=np.double),
-          np.array([[1], [1], [0], [1]], dtype=np.double),
-          np.array([[1], [1], [1], [1]], dtype=np.double),
-          ]
-
-# The 'point_connections' array defines connections between vertices to create edges.
-# Use the index of the vertices from the 'points' list.
-# Note: Indexing starts from 1 for better understandability.
-point_connections = [[1, 2], [1, 3], [2, 4], [3, 4], [1, 5], [
-    2, 6], [3, 7], [4, 8], [5, 6], [5, 7], [6, 8], [7, 8]]
-
-# The 'face_connections' array defines the vertices used for creating faces
-# Use the index of the vertices from the 'points' list.
-# Note: Indexing starts from 1 for better understandability.
-face_connections = [[1, 2, 4, 3], [5, 6, 8, 7], [
-    1, 2, 6, 5], [3, 4, 8, 7], [1, 3, 7, 5], [2, 4, 8, 6]]
 
 # Window settings
 window_size = [800, 600]
 aspect_ratio = window_size[0] / window_size[1]
 
+
+# Open and convert the object file
+f = open("objects/"+filename, "r")
+mesh = json.loads(f.read())
+f.close()
+
+points = []
+
+for point in mesh[0]:
+    points.append(np.array(point, dtype=np.double))
+
+point_connections = mesh[1]
+face_connections = mesh[2]
+
 # Function for creating a projection matrix
+
 def make_projection_matrix(aspect_ratio, fov, far, near):
     focal_length = 1 / math.tan(math.radians(0.5*fov))
     projection_matrix = np.array([
