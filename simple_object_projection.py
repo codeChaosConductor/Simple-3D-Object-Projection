@@ -14,14 +14,14 @@ near = 0.1
 speed = 0.01
 
 # Set the filename of the object
-filename = "triangle_mesh.json"
+filename = "cube.json"
 
 # Specify what should be drawn
 draw_vertices = True
 draw_edges = True
 draw_faces = True
 
-# Window settings
+# Window settings 
 window_size = [800, 600]
 aspect_ratio = window_size[0] / window_size[1]
 
@@ -36,7 +36,7 @@ points = []
 for point in mesh[0]:
     points.append(np.array(point, dtype=np.double))
 
-point_connections = mesh[1]
+edge_connections = mesh[1]
 face_connections = mesh[2]
 
 # Function for creating a projection matrix
@@ -123,7 +123,7 @@ while not done:
 
     # When defined in 'draw_edges' draw edges
     if draw_edges == True:
-        for x in point_connections:
+        for x in edge_connections:
             pos1 = (calculated_points[x[0]-1][0] * aspect_ratio * window_size[0] + 0.5 *
                     window_size[0], calculated_points[x[0]-1][1] * window_size[0] + 0.5 * window_size[1])
             pos2 = (calculated_points[x[1]-1][0] * aspect_ratio * window_size[0] + 0.5 *

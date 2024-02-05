@@ -21,7 +21,7 @@ This project demonstrates a simple 3D perspective projection of an object using 
 ## Usage
 1. Clone the repository: `git clone https://github.com/codeChaosConductor/Simple-3D-Object-Projection/`
 2. Navigate to the project directory: `cd <project-directory>`
-3. Run the script: `python object_projection.py`
+3. Run the script: `python simple_object_projection.py`
 
 ## Configuration
 You can customize the following parameters in the script:
@@ -33,8 +33,12 @@ You can customize the following parameters in the script:
 - `draw_edges`: Set to `True` to draw edges.
 
 ## Object Configuration
+You can create new objects by using the following lists in `create_object_mesh.py`
 - `points`: List of 3D coordinates representing object vertices.
-- `point_connections`: List of connections between vertices.
+- `edge_connections`: List of connections between vertices to create edges.
+- `face_connections`: List of connections between vertices to create faces.
+Enter the filename of the object and run the script to create the object.
+Now change `filename` in `simple_object_projection` to the desired object and run the script.
 
 ## Credits
 - Developed by Fynn Mannack
