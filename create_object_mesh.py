@@ -11,7 +11,7 @@ filename = "triangle_mesh.json"
 points = [
     [[0], [0], [0], [1]],
     [[0], [1], [0], [1]],
-    [[1], [0.5], [0], [1]]
+    [[0], [0.5], [0], [1]]
 ]
 
 # The 'point_connections' array defines connections between vertices to create edges.
@@ -30,13 +30,15 @@ face_connections = [
     [1, 2, 3]
 ]
 
+middle_point = [0.5, 0.5, 0.5]
+
 if os.path.exists("objects/"+filename):
     f = open("objects/"+filename, "w")
-    f.write(json.dumps([points, point_connections, face_connections]))
+    f.write(json.dumps([points, point_connections, face_connections, middle_point]))
     f.close()
     print("file successfully overwritten")
 else:
     f = open("objects/"+filename, "x")
-    f.write(json.dumps([points, point_connections, face_connections]))
+    f.write(json.dumps([points, point_connections, face_connections, middle_point]))
     f.close()
     print("file successfully created")

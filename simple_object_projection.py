@@ -13,8 +13,12 @@ far = 10
 near = 0.1
 speed = 0.01
 
+rotation_x = 0
+rotation_y = 0
+rotation_z = 0
+
 # Set the filename of the object
-filename = "cube.json"
+filename = "square_based_pyramid.json"
 
 # Specify what should be drawn
 draw_vertices = True
@@ -38,6 +42,7 @@ for point in mesh[0]:
 
 edge_connections = mesh[1]
 face_connections = mesh[2]
+middle_point = mesh[3]
 
 # Function for creating a projection matrix
 
@@ -52,13 +57,67 @@ def make_projection_matrix(aspect_ratio, fov, far, near):
     return projection_matrix
 
 
+def rot_y(pt):
+        v = pt[0] - middle_point[0]
+        u = pt[1] - middle_point[1]
+        
+        hyp = np.sqrt(u**2 + v**2)
+
+        angle = np.degrees(np.arctan2(u, v))
+
+        new_angle = angle - rotation_y
+
+        new_x = np.cos(np.radians(new_angle)) * hyp + middle_point[0]
+        new_y = np.sin(np.radians(new_angle)) * hyp + middle_point[1]
+
+        return [new_x, new_y, pt[2], pt[3]]
+
+def rot_x(pt):
+        v = pt[1] - middle_point[1]
+        u = pt[2] - middle_point[2]
+        
+        hyp = np.sqrt(u**2 + v**2)
+
+        angle = np.degrees(np.arctan2(u, v))
+
+        new_angle = angle - rotation_x
+
+        new_x = np.cos(np.radians(new_angle)) * hyp + middle_point[1]
+        new_y = np.sin(np.radians(new_angle)) * hyp + middle_point[2]
+
+        return [pt[0], new_x, new_y, pt[3]]
+
+def rot_z(pt):
+        v = pt[0] - middle_point[0]
+        u = pt[2] - middle_point[2]
+        
+        hyp = np.sqrt(u**2 + v**2)
+
+        angle = np.degrees(np.arctan2(u, v))
+
+        new_angle = angle - rotation_z
+
+        new_x = np.cos(np.radians(new_angle)) * hyp + middle_point[0]
+        new_y = np.sin(np.radians(new_angle)) * hyp + middle_point[2]
+
+        return [new_x, pt[1], new_y, pt[3]]
+
+def rotate_object(pot):
+        
+        new_pt = rot_z(rot_x(rot_y(pot)))
+
+        return np.array(new_pt, dtype=np.double)
+
+
 pygame.init()
 screen = pygame.display.set_mode((window_size[0], window_size[1]))
+resized_screen = pygame.transform.scale(screen, (window_size[0], window_size[1]))
 clock = pygame.time.Clock()
 
 projection_matrix = make_projection_matrix(aspect_ratio, fov, far, near)
 
 # create an offset between camera and object
+middle_point[2] += 5
 for i in range(len(points)):
     points[i][2] += 5
 
@@ -68,9 +127,40 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_r]:
+         rotation_z = 0
+         rotation_x = 0
+         rotation_y = 0
+    if keys[pygame.K_LEFT]:
+        rotation_z += 1
+    if keys[pygame.K_RIGHT]:
+        rotation_z -= 1
+    if keys[pygame.K_UP]:
+        rotation_x += 1
+    if keys[pygame.K_DOWN]:
+        rotation_x -= 1
+    if keys[pygame.K_n]:
+        rotation_y += 1
+    if keys[pygame.K_m]:
+        rotation_y -= 1
+
+    if keys[pygame.K_s]:
+            middle_point[1] -= speed
+    if keys[pygame.K_w]:
+            middle_point[1] += speed
+    if keys[pygame.K_a]:
+            middle_point[0] -= speed
+    if keys[pygame.K_d]:
+            middle_point[0] += speed
+    if keys[pygame.K_y]:
+            middle_point[2] -= speed
+    if keys[pygame.K_x]:
+            middle_point[2] += speed
 
     keys = pygame.key.get_pressed()
     for i in range(len(points)):
+
         if keys[pygame.K_s]:
             points[i][1][0] -= speed
         if keys[pygame.K_w]:
@@ -89,8 +179,11 @@ while not done:
     calculated_points = []
 
     # calculate the coordinates for each vertice
-    for point in points:
-        calc = np.matmul(projection_matrix, point).flatten()
+    for pt in points:
+        
+        new_point = rotate_object(pt)
+
+        calc = np.matmul(projection_matrix, new_point).flatten()
         if calc[3] != 0:
             calc /= calc[3]
 
@@ -131,6 +224,7 @@ while not done:
             if calculated_points[x[0]-1][2] == 1 and calculated_points[x[1]-1][2] == 1:
                 pygame.draw.line(screen, (0, 0, 0), pos1, pos2)
 
+    #screen.blit(resized_screen, (0, 0))
     pygame.display.flip()  # Rerender the screen
     clock.tick(30)  # Framerate of 30 fps
 
